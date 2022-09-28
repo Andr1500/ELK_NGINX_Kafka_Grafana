@@ -15,8 +15,8 @@ c) We don't have any domain and secure HTTPS connection with OpenSSL certificate
 
 2.  go to terraform folder
     set aws credentials, credentials can be exported as environment variables:
-   ```export AWS_SECRET_ACCESS_KEY="SECRET_KEY"
-    export AWS_ACCESS_KEY_ID="ACCES_KEY"```
+   ```export AWS_SECRET_ACCESS_KEY="SECRET_KEY"```
+   ```export AWS_ACCESS_KEY_ID="ACCES_KEY"```
     run ```terraform init```
     if everything is ok, run ```terraform plan``` and ```terraform apply```
     Infrastructure in AWS will be created and inventory file hosts.txt in ELK_stack directory.
