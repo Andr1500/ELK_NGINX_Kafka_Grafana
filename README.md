@@ -11,31 +11,44 @@ c) We don't have any domain and secure HTTPS connection with OpenSSL certificate
 ![ELK Stack + Beats + Kafka + NGINX + Grafana](ELK_stack_diagram.png)
 
 1.  clone the repo
-    ```git clone git@github.com:Andr1500/ELK_NGINX_Kafka_Grafana.git```
+```git clone git@github.com:Andr1500/ELK_NGINX_Kafka_Grafana.git```
 
 2.  go to terraform folder
-    set aws credentials, credentials can be exported as environment variables:
-   ```export AWS_SECRET_ACCESS_KEY="SECRET_KEY"```
-   ```export AWS_ACCESS_KEY_ID="ACCES_KEY"```
-    run ```terraform init```
-    if everything is ok, run ```terraform plan``` and ```terraform apply```
-    Infrastructure in AWS will be created and inventory file hosts.txt in ELK_stack directory.
+set aws credentials, credentials can be exported as environment variables:
+```export AWS_SECRET_ACCESS_KEY="SECRET_KEY"```
+```export AWS_ACCESS_KEY_ID="ACCES_KEY"```
+run ```terraform init```
+if everything is ok, run ```terraform plan``` and ```terraform apply```
+Infrastructure in AWS will be created and inventory file hosts.txt in ELK_stack directory.
 
-3. All Ansible variables are in ELK_stack/group_vars/all.yml . Add server_domain and certbot_mail_address variables if you need to assign Let's Encrypt SSL certificate to NGINX server and use domain name. Here is in use domain from GoDaddy and it's necessary to create (or change) A record for forwarding traffic to the created server. In case you don't have any domain name you can use self-assigned OpenSSL certificate.
+3. All Ansible variables are in ELK_stack/group_vars/all.yml . Add ```server_domain``` and ```certbot_mail_address``` variables if you need to assign Let's Encrypt SSL certificate to NGINX server and use domain name. Here is in use domain from GoDaddy and it's necessary to create (or change) A record for forwarding traffic to the created server. In case you don't have any domain name you can use self-assigned OpenSSL certificate.
 
 4. Go to ELK_stack folder and run:
+
 a) for the enviromnent with Sertificate Manager SSL certificate:
-  for installation and configuration ELK stack:
-    ``` ansible-playbook -i hosts.txt -l elk_stack ELK_stack_cermanager.yml ```
-  for installation and configuration workers:
-    ``` ansible-playbook -i hosts.txt -l worker ELK_beats.yml ```
-b) for the environment with Let's Encrypt SSL certificate:
+
 for installation and configuration ELK stack:
-  ```ansible-playbook -i hosts.txt -l elk_stack ELK_stack_letsencrypt.yml```
+``` ansible-playbook -i hosts.txt -l elk_stack ELK_stack_cermanager.yml ```
+
 for installation and configuration workers:
-  ```ansible-playbook -i hosts.txt -l worker ELK_beats.yml```
+``` ansible-playbook -i hosts.txt -l worker ELK_beats.yml ```
+
+b) for the environment with Let's Encrypt SSL certificate:
+
+for installation and configuration ELK stack:
+```ansible-playbook -i hosts.txt -l elk_stack ELK_stack_letsencrypt.yml```
+
+for installation and configuration workers:
+```ansible-playbook -i hosts.txt -l worker ELK_beats.yml```
+
+Next, go to your hosting provider and add A record.
+
+![GoDaddy A record](godaddy_arecord.png)
+
 c) for the environment with OpenSSL SSL certificate:
+for installation and configuration ELK stack:
 ```ansible-playbook -i hosts.txt -l elk_stack ELK_stack_openssl.yml```
+
 for installation and configuration workers:
 ```ansible-playbook -i hosts.txt -l worker ELK_beats.yml```
 
@@ -48,6 +61,6 @@ for installation and configuration workers:
 ![Elasticsearch as a datasource](grafana_elastic_source1.png)
 ![Elasticsearch as a datasource](grafana_elastic_source2.png)
 
-Add new dashboard: Dashboards -> New Dashboard -> Add a new pannel -> Apply -> Save Dashboard -> Save.
+8. Add new dashboard: Dashboards -> New Dashboard -> Add a new pannel -> Apply -> Save Dashboard -> Save.
 
 ![Grafana dashboard](grafana_dashboard.png)
