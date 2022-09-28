@@ -1,0 +1,46 @@
+---
+# tasks file for grafana
+- name: install grafana rpm key
+  rpm_key:
+    key: https://packages.grafana.com/gpg.key
+    state: present
+
+- name: install grafana  rpm repository
+  yum_repository:
+    name: grafana
+    description: grafana  packages
+    baseurl: https://packages.grafana.com/oss/rpm
+    gpgcheck: true
+    gpgkey: https://packages.grafana.com/gpg.key
+
+- name: install grafana
+  yum:
+    name: grafana
+    state: present
+
+- name: grafana is installed
+  yum:
+    name: grafana
+    state: installed
+
+- name: Setup Grafana config file
+  template:
+    src: grafana.ini
+    dest: /etc/grafana/grafana.ini
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Setup Grafana Elasticsearch dashboard
+  template:
+    src: elasticsearch_rev4.json
+    dest: /usr/share/grafana/public/dashboards/elasticsearch_rev4.json
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enabling Grafana on boot and starting
+  service:
+    name: grafana-server
+    state: restarted
+    enabled: yes

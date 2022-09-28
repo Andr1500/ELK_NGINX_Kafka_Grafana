@@ -1,0 +1,104 @@
+---
+#config for letsencrypt
+server_domain: "elk.an1500.online"
+certbot_package: "certbot"
+certbot_plugin: "nginx"
+certbot_mail_address: qwerty@xyz.com
+
+#system user for nginx
+nginx_group: nginx
+nginx_user: nginx
+
+#the hostname
+server_name: elk_stack
+
+#credentials for kibana
+kibana_user: kibanauser
+kibana_password: kibanauser
+
+# Certificate subject
+nginx_ssl_certificate_subject: "/C=PL/ST=KujawskoPomorskie/L=BDG/O=OME/CN={{ ansible_fqdn }}"
+
+# Certificate validity (days)
+nginx_ssl_certificate_days: 365
+
+# Server path to SSL certificate
+nginx_ssl_certificate: /etc/nginx/ssl/server.crt
+
+# Server path to SSL certificate key
+nginx_ssl_certificate_key: /etc/nginx/ssl/server.key
+
+# Server path to Diffie-Hellman group
+nginx_ssl_certificate_dhparam: /etc/nginx/ssl/dhparam.pem
+
+# X-pack configurations
+xpack_security_enabled: true
+discovery_type: single-node
+
+es_home: /usr/share/elasticsearch
+es_conf_dir: /etc/elasticsearch
+
+es_group: elasticsearch
+es_owner: root
+es_mode: "0660"
+
+es_api_uri: "localhost:9200"
+
+#Xpack cretdentials
+es_api_basic_auth_username: elastic
+es_api_basic_auth_password: elastic
+
+#a built-in superuser
+elastic_username: elastic
+elastic_password: elastic
+
+#kibana-system  user
+kibana_system_username: kibana_system
+kibana_system_password: elastic
+
+# Logstash user, uses when storing monitoring information in Elasticsearch.
+logstash_system_username: logstash_system
+logstash_system_password: logstash
+
+# metricbeat user, uses when storing monitoring information in Logstash.
+metricbeat_username: metricbeat
+metricbeat_password: metricbeat
+
+#Grafana configuration
+admin_user: grafana
+admin_password: grafana
+
+node: 3.75.210.73
+path: /var/lib/grafana
+gc: /etc/grafana/grafana.ini
+
+#Kibana configuration
+kibana_host: "0.0.0.0"
+kibana_port: 5601
+xpack_security_encryptionKey: "something_at_least_32_characters"
+elasticsearch_hosts: ["http://localhost:9200"]
+
+#Elasticsearch configuration
+elastic_protocol: http
+elastic_host: 127.0.0.1
+elastic_port: 9200
+network_host: localhost
+elasticsearch_port: 9200
+
+#Logstash configuration
+logstash_username: logstashuser
+logstash_password: logstash
+logstash_host: 127.0.0.1
+logstash_port: 5044
+
+
+# Kafka settings
+user_group: elk_stack
+kafka_user: kafka
+kafka_group: kafka
+kafka_host: 172.31.21.136
+kafka_port: 9092
+installation_dir: /opt/kafka
+installation_source: https://dlcdn.apache.org/kafka/3.1.2/kafka_2.12-3.1.2.tgz
+kafka_topicname_filebeat: filebeat
+kafka_topicname_metricbeat: metricbeat

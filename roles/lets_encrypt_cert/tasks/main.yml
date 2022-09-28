@@ -1,0 +1,40 @@
+---
+# create SSL cert with Let's Encrypt and integrate it into NGINX config file
+- name : Install epel-release repository
+  shell: yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+
+- name: Install certbot
+  yum:
+    name: certbot
+    update_cache: yes
+    state: latest
+
+- name: Install certbot nginx package
+  yum:
+    name: python3-certbot-nginx
+    update_cache: yes
+    state: latest
+
+- name: Setup Nginx config file for Let's Encrypt cert
+  template:
+    src: letsencrypt.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create and Install Cert Using cerbot Plugin
+  command: "certbot --{{ certbot_plugin }} -d  {{ server_domain }} -m {{ certbot_mail_address }} --agree-tos --noninteractive --redirect"
+
+
+- name: Set Letsencrypt cronjob for certificate auto renewal (every month)
+  cron:
+    name: letsencrypt_renewal
+    special_time: monthly
+    job: "/usr/bin/certbot --force-renewal -d {{ server_domain }}"
+
+- name: Enabling Nginx on boot and starting
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes

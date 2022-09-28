@@ -1,0 +1,39 @@
+---
+# create SSL cert for Nginx
+
+- name: Install openssl
+  yum:
+    name: openssl
+    state: present
+
+- name: create SSL certificates directory and files
+  file:
+    path: "{{ item | dirname }}"
+    state: directory
+  with_items:
+    - "{{ nginx_ssl_certificate }}"
+    - "{{ nginx_ssl_certificate_key }}"
+    - "{{ nginx_ssl_certificate_dhparam }}"
+
+- name: Generate self-signed SSL certificate
+  command:
+    openssl req -new -nodes -x509 -subj "{{ nginx_ssl_certificate_subject }}" -days {{ nginx_ssl_certificate_days }} -keyout {{ nginx_ssl_certificate_key }} -out {{ nginx_ssl_certificate }} -extensions v3_ca
+  args:
+    creates: "{{ nginx_ssl_certificate }}"
+
+- name: Create a strong Diffie-Hellman group
+  command: openssl dhparam -out "{{ nginx_ssl_certificate_dhparam }}" 2048
+
+- name: Setup Nginx config file for OpenSSL cert
+  template:
+    src: openssl.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+    mode: '0644'
+
+- name: Enabling Nginx on boot and starting
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes

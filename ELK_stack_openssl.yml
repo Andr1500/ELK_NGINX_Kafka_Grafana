@@ -1,0 +1,14 @@
+---
+# Playbook for install the ELK stack + grafana + kafka
+- hosts: all
+  become: yes
+
+  roles:
+  - { role: java }
+  - { role: nginx }
+  - { role: ssl_cert }
+  - { role: elasticsearch }
+  - { role: kibana }
+  - { role: grafana }
+  - { role: logstash }
+  - { role: kafka }

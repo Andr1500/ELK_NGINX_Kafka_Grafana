@@ -1,0 +1,85 @@
+---
+# tasks file for filebeat
+- name: Import the Filebeat GPG Key
+  rpm_key:
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Installing ELK 7.x RPM repository
+  yum_repository:
+    name: elasticsearch
+    description: Elasticsearch repository for 7.x packages
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgcheck: true
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    enabled: true
+  register: yum_repository_output
+
+- debug: var=yum_repository_output
+
+- name: Install Filebeat 7.x
+  yum:
+    name: filebeat
+    state: present
+
+- name: Copy filebeat configuration into the Server
+  template:
+    src: filebeat.yml.j2
+    dest: /etc/filebeat/filebeat.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enable system module
+  shell: sudo filebeat modules enable system
+
+- name: List of enabled modules
+  shell: sudo filebeat modules list
+  register: modules_list
+
+# - debug: var=modules_list.stdout_lines[1]
+#
+# - name: Load the index template into Elasticsearch
+#   shell: sudo filebeat setup --index-management -E output.logstash.enabled=false -E 'output.elasticsearch.hosts=['{{ elastic_username }}:{{ elastic_password }}@localhost:9200']'
+#   register: loaded_index_template
+#
+# - debug: var=loaded_index_template.stdout_lines
+#
+# - name: Check if Nginx service exists
+#   shell: "if chkconfig --list | grep -q nginx;   then echo true;   else echo false; fi;"
+#   register: service_exists
+#
+# - name: Stop service Nginx on hosts where the service is present
+#   service:
+#     name: nginx
+#     state: stopped
+#   when: service_exists
+#   register: service_stopped
+#
+# - name: Create the index pattern and load the dashboards into Kibana
+#   shell:  filebeat setup -e \
+#          -E output.logstash.enabled=false \
+#          -E output.elasticsearch.hosts=['{{ elastic_username }}:{{ elastic_password }}@localhost:9200'] \
+#          -E setup.kibana.host={{ elastic_username }}:{{ elastic_password }}@localhost:5601/kibana
+#
+# - name: Start service Nginx on hosts where the service is present
+#   service:
+#     name: nginx
+#     state: started
+#   when:
+#     - service_exists
+#     - service_stopped
+#
+
+- name: Enabling filebeat on boot and starting
+  service:
+    name: filebeat
+    state: restarted
+    enabled: yes
+
+- name: Check filebeat status
+  service_facts:
+
+- name: Status of Filebeat
+  debug:
+    var: ansible_facts.services["filebeat.service"]

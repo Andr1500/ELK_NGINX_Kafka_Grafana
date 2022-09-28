@@ -1,0 +1,53 @@
+---
+#install and config Nginx server as a reverce proxy
+
+- name: Create Nginx group
+  group:
+    name: "{{ nginx_group }}"
+    state: present
+
+- name: Create Nginx user
+  user:
+    name: "{{ nginx_user }}"
+    state: present
+    group: "{{ nginx_group }}"
+
+- name: Install Nginx
+  yum:
+    name: nginx
+    state: latest
+
+- name: Setup Nginx config file
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+    mode: '0644'
+
+- name: Setup Nginx errors and settings files
+  copy:
+    src: "{{ item }}"
+    dest: "/usr/share/nginx/html/"
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+  loop:
+    - 50x.html
+    - 404.html
+    - mystyle.css
+    - index.html
+
+- name: Allows Nginx to forward traffic
+  shell: setsebool -P httpd_can_network_connect 1
+
+- name: Check nginx configuration for syntax errors
+  shell: nginx -t
+  register: nginxout
+
+- debug: var=nginxout.stderr
+
+- name: Enabling Nginx on boot and starting
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes

@@ -1,0 +1,138 @@
+---
+# tasks file for Kafka
+
+- name: Create Kafka group
+  group:
+    name: "{{ kafka_group }}"
+    state: present
+
+- name: Create Kafka user
+  user:
+    name: "{{ kafka_user }}"
+    state: present
+    group: "{{ kafka_group }}"
+
+- name: Create a Installation Directory
+  file:
+    path: "{{installation_dir}}"
+    state: directory
+    mode: 0755
+    owner: "{{ kafka_user }}"
+    group: "{{ kafka_group }}"
+
+- name: Download Kafka and Unzip
+  become_user: "{{ kafka_user }}"
+  unarchive:
+    src: "{{ installation_source }}"
+    dest: "{{ installation_dir }}"
+    mode: 0755
+    remote_src: yes
+
+- name: Check if Kafka bin directory already exist
+  shell: ls {{ installation_dir }}
+  register: bin_dir_exist
+
+- name: dirs
+  debug:
+    var: bin_dir_exist.stdout
+
+- name: Move all the files to parent Directory
+  become_user: "{{ kafka_user }}"
+  shell:
+    mv {{installation_dir}}/kafka_*/* {{installation_dir}}/.
+  when: bin_dir_exist.stdout.find('bin') != 0
+
+- name: Update the log path
+  become_user: "{{ kafka_user }}"
+  replace:
+    path: "{{ installation_dir }}/config/server.properties"
+    regexp: 'log.dirs=(.+)'
+    replace: 'log.dirs={{installation_dir}}/logs'
+    backup: yes
+
+- name: Update the Java Heap Size for Kafka
+  become_user: "{{ kafka_user }}"
+  replace:
+    path: "{{ installation_dir }}/bin/kafka-server-start.sh"
+    regexp: 'export KAFKA_HEAP_OPTS=(".+")'
+    replace: 'export KAFKA_HEAP_OPTS="-Xmx520M -Xms520M"'
+    backup: yes
+
+- name: Create a Service file for ZooKeeper with Copy module
+  copy:
+    dest: /etc/systemd/system/zookeeper.service
+    content: |
+      [Unit]
+      Requires=network.target remote-fs.target
+      After=network.target remote-fs.target
+      [Service]
+      Type=simple
+      User={{kafka_user}}
+      ExecStart={{installation_dir}}/bin/zookeeper-server-start.sh {{installation_dir}}/config/zookeeper.properties
+      ExecStop={{installation_dir}}/bin/zookeeper-server-stop.sh
+      Restart=on-abnormal
+      [Install]
+      WantedBy=multi-user.target
+    mode: 0755
+
+- name: Create a Service file for Kafka with Copy module
+  copy:
+    dest: /etc/systemd/system/kafka.service
+    content: |
+      [Unit]
+      Requires=zookeeper.service
+      After=zookeeper.service
+      [Service]
+      Type=simple
+      User={{kafka_user}}
+      ExecStart=/bin/sh -c '{{installation_dir}}/bin/kafka-server-start.sh {{installation_dir}}/config/server.properties > {{installation_dir}}/kafkaservice.log 2>&1'
+      ExecStop={{ installation_dir }}/bin/kafka-server-stop.sh
+      Restart=on-abnormal
+      [Install]
+      WantedBy=multi-user.target
+    mode: 0755
+
+- name: Start Services
+  tags: startservices
+  systemd:
+    name: '{{item}}'
+    state: started
+    enabled: yes
+  loop:
+    - "zookeeper"
+    - "kafka"
+
+- name: Validating if zookeeper is up and listening on port 2181
+  wait_for:
+    host: localhost
+    port: 2181
+    delay: 10
+    timeout: 30
+    state: started
+    msg: "Zookeeper not seem to be running"
+
+- name: Validating if Kafka is up and listening on port 9092
+  wait_for:
+    host: localhost
+    port: 9092
+    delay: 10
+    timeout: 30
+    state: started
+    msg: "Kafka not seem to be running"
+
+- name: Check if topic already exist
+  shell: ./kafka-topics.sh --bootstrap-server=localhost:9092 --list
+  args:
+    chdir: "{{ installation_dir }}/bin"
+  register: topic_exists
+
+- name: Create a Topic
+  tags: createtopic
+  shell: |
+    ./kafka-topics.sh --create --topic '{{ item }}' --bootstrap-server localhost:9092
+  args:
+    chdir: "{{ installation_dir }}/bin"
+  loop:
+    - "{{ kafka_topicname_filebeat }}"
+    - "{{ kafka_topicname_metricbeat }}"
+  when: topic_exists == ""

@@ -1,0 +1,47 @@
+---
+#tasks file for kibana
+- name: Import the Kibana GPG Key
+  rpm_key:
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Installing ELK 7.x RPM repository
+  yum_repository:
+    name: elasticsearch
+    description: Elasticsearch repository for 7.x packages
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgcheck: true
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    enabled: true
+  register: yum_repository_output
+
+- debug: var=yum_repository_output
+
+- name: install Kibana 7.x
+  yum:
+    name: kibana
+    state: present
+
+- name: Setup Kibana config file
+  template:
+    src: kibana.yml.j2
+    dest: /etc/kibana/kibana.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+# - name: Install and upgrade pip
+#   package:
+#     name: python3-pip
+#     state: present
+#
+# - name: Install Pexpect to handle prompts of the terminal
+#   pip:
+#     name: pexpect
+#     executable: pip3
+
+- name: enabling Kibana on boot and starting
+  service:
+    name: kibana
+    state: restarted
+    enabled: yes

@@ -1,0 +1,43 @@
+---
+# tasks file for metricbeat installation and configuration
+- name: Import the metricbeat GPG Key
+  rpm_key:
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Installing metricbeat 7.x from the RPM repository
+  yum_repository:
+    name: elastic-7.x
+    description: Elastic repository for 7.x packages
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgcheck: true
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+  register: yum_repository_output
+
+- debug: var=yum_repository_output
+
+- name: Install metricbeat 7.x
+  yum:
+    name: metricbeat
+    state: present
+
+- name: Copy metricbeat configuration into the server
+  template:
+    src: metricbeat.yml.j2
+    dest: /etc/metricbeat/metricbeat.yml
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Enabling metricbeat on boot and starting
+  service:
+    name: metricbeat
+    state: restarted
+    enabled: yes
+
+- name: Check metricbeat status
+  service_facts:
+
+- name: Status of metricbeat
+  debug:
+    var: ansible_facts.services["metricbeat.service"]

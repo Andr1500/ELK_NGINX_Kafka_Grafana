@@ -1,0 +1,46 @@
+---
+#tasks file for install elasticsearch
+- name: Import the Elasticsearch GPG Key
+  rpm_key:
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Installing ELK 7.x RPM repository
+  yum_repository:
+    name: elasticsearch
+    description: Elasticsearch repository for 7.x packages
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgcheck: true
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    enabled: true
+  register: yum_repository_output
+
+- debug: var=yum_repository_output
+
+- name: install Elasticsearch 7.x
+  yum:
+    name: elasticsearch
+    state: present
+
+- name: Elasticseaarch main config file
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: enabling Elasticsearch on boot and starting
+  service:
+    name: elasticsearch
+    state: restarted
+    enabled: yes
+
+- name: Including Xpack security setup
+  include_tasks: security/keystore.yml
+
+- name: check Elasticsearch to make sure it responds to a connection
+  shell: curl -X GET "localhost:9200"
+  register: checkelasticsearch
+
+- debug: var=checkelasticsearch.stdout_lines

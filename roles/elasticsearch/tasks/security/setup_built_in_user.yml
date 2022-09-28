@@ -1,0 +1,42 @@
+---
+- name: Restart elasticsearch
+  service:
+    name: elasticsearch
+    state: restarted
+
+# updating elastic superuser password
+- name: Update elastic user password
+  uri:
+    url: "http://{{ es_api_uri }}/_security/user/{{ es_api_basic_auth_username }}/_password"
+    method: POST
+    body_format: json
+    body: "{ \"password\":\"{{ elastic_password }}\" }"
+    status_code: 200
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+
+- name: Update kibana_system password
+  uri:
+    url: "http://{{ es_api_uri }}/_security/user/{{ kibana_system_username }}/_password"
+    method: POST
+    body_format: json
+    body: "{ \"password\":\"{{ kibana_system_password }}\" }"
+    status_code: 200
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ elastic_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+
+- name: Update logstash_system password
+  uri:
+    url: "http://{{ es_api_uri }}/_security/user/{{ logstash_system_username }}/_password"
+    method: POST
+    body_format: json
+    body: "{ \"password\":\"{{ logstash_system_password }}\" }"
+    status_code: 200
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ elastic_password }}"
+    force_basic_auth: yes
+    validate_certs: no

@@ -1,0 +1,19 @@
+.btn-group1 button {
+  background-color: #FFA500; /* Orange background */
+  border: 1px solid green; /* Green border */
+  color: black; /* White text */
+  padding: 20px 100px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  width: 25%; /* Set a width if needed */
+  display: block; /* Make the buttons appear below each other */
+}
+
+.btn-group2 button {
+  background-color: #04AA6D; /* Green background */
+  border: 1px solid green; /* Green border */
+  color: black; /* White text */
+  padding: 20px 100px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  width: 25%; /* Set a width if needed */
+  display: block; /* Make the buttons appear below each other */
+}

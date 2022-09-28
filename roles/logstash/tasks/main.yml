@@ -1,0 +1,106 @@
+---
+# tasks file for logstash
+- name: Import the Logstash GPG Key
+  rpm_key:
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: Installing ELK 7.x RPM repository
+  yum_repository:
+    name: elasticsearch
+    description: Elasticsearch repository for 7.x packages
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgcheck: true
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    enabled: true
+  register: yum_repository_output
+
+- debug: var=yum_repository_output
+
+- name: Install Logstash 7.x
+  yum:
+    name: logstash
+    state: present
+
+# - name: Create certs dir for SSL certificate
+#   file:
+#     path: /etc/pki/tls/certs
+#     state: directory
+#
+# - name: Create private dir for SSL certifacate
+#   file:
+#     path: /etc/pki/tls/private
+#     state: directory
+#
+# - name: Update the config file to restrict outside access
+#   lineinfile:
+#     destfile: /etc/ssl/openssl.cnf
+#     regexp: 'subjectAltName ='
+#     line: 'subjectAltName = IP: {{ elk_ip }}'
+#
+# - name: Generate a Self Signed OpenSSL certificate
+#   openssl_certificate:
+#     path: /etc/ssl/openssl.cnf
+#     privatekey_path: /etc/pki/tls/private/logstash-forwarder.key
+#     csr_path: /etc/pki/tls/certs/logstash-forwarder.crt
+#     provider: selfsigned
+
+# - name: Generate SSL certificates
+#   shell: "openssl req -config /etc/ssl/openssl.cnf -x509 -days 3650 -batch -nodes -newkey rsa:2048 -keyout /etc/pki/tls/private/logstash-forwarder.key -out /etc/pki/tls/certs/logstash-forwarder.crt"
+
+- name: Configure beats config file
+  template:
+    src: logs.conf.j2
+    dest: /etc/logstash/conf.d/logs.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+# - name: Configure beats config file
+#   template:
+#     src: beats-input.conf.j2
+#     dest: /etc/logstash/conf.d/02-beats-input.conf
+#     owner: root
+#     group: root
+#     mode: "0644"
+#
+# - name: Configuration file, which will add a filter for system logs
+#   template:
+#     src: 10-syslog-filter.conf.j2
+#     dest: /etc/logstash/conf.d/10-syslog-filter.conf
+#     owner: root
+#     group: root
+#     mode: "0644"
+#
+# - name: Output configures Logstash to store the Beats data in Elasticsearch
+#   template:
+#     src: 30-elasticsearch-output.conf.j2
+#     dest: /etc/logstash/conf.d/30-elasticsearch-output.conf
+#     owner: root
+#     group: root
+#     mode: "0644"
+
+# - name: Logstash main config file
+#   template:
+#     src: logstash.yml.j2
+#     dest: /etc/logstash/logstash.yml
+#     owner: root
+#     group: root
+#     mode: "0644"
+
+- name: Check Logstash configuration
+  shell: sudo -u logstash /usr/share/logstash/bin/logstash --path.settings /etc/logstash -t
+  register: logstashoutput
+
+- debug: var=logstashoutput.stdout_lines
+
+- name: Enabling Logstash on boot and starting
+  service:
+    name: logstash
+    state: restarted
+    enabled: yes
+
+# - name: Restart Nginx
+#   service:
+#     name: nginx
+#     state: restarted

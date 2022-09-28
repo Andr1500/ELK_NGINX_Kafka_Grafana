@@ -1,0 +1,8 @@
+---
+# Playbook for install the ELK beats
+- hosts: all
+  become: yes
+
+  roles:
+  - { role: filebeat }
+  - { role: metricbeat }

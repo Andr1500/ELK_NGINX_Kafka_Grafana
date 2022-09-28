@@ -1,0 +1,8 @@
+---
+# tasks file for install java
+# Install Java 8
+- name: Install the Java 11 package
+  yum:
+    name: java-11-openjdk-devel
+    state: present
+    update_cache: true
