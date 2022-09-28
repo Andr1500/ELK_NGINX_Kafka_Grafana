@@ -1,12 +1,11 @@
 Create environment with terraform and configure ELK stack + Kafka + Nginx + Beats with Ansible playbook.
 
-Here are 3 options of running project:
-
-a) All environment is AWS oriented, it is necessary to have domain in Route53 and asigned to this domain certificate in Certificate Manager service. In this case we use folder terraform_ALB_Route53_managed for creation infrastructure with terraform. Terraform create: Application Load Balancer, Load Balancer target group, Load Balancer listeners, A record related to DNS subdomain, network security groups, ELK stack and worker EC2 instances.
-
-b) We have domain from other domain provier (f.e. GoDaddy in my case) and secure HTTPS connection with Let's Encrypt SSL certificate. In this case we use folder terraform_terraform_EC2_managed for creation infrastructure with terraform. Terraform create network security groups, ELK stack and worker EC2 instances. We need to create (or change) manually A record in our domain provider configuration for assignation with public IP address.
-
-c) We don't have any domain and secure HTTPS connection with OpenSSL certificate. In this case we use folder terraform_terraform_EC2_managed for creation infrastructure with terraform. Terraform create network security groups, ELK stack and worker EC2 instances.
+Here are 3 options of running project:<br />
+a) All environment is AWS oriented, it is necessary to have domain in Route53 and asigned to this domain certificate in Certificate Manager service. In this case we use folder terraform_ALB_Route53_managed for creation infrastructure with terraform. Terraform create: Application Load Balancer, Load Balancer target group, Load Balancer listeners, A record related to DNS subdomain, network security groups, ELK stack and worker EC2 instances.<br />
+<br />
+b) We have domain from other domain provier (f.e. GoDaddy in my case) and secure HTTPS connection with Let's Encrypt SSL certificate. In this case we use folder terraform_terraform_EC2_managed for creation infrastructure with terraform. Terraform create network security groups, ELK stack and worker EC2 instances. We need to create (or change) manually A record in our domain provider configuration for assignation with public IP address.<br />
+<br />
+c) We don't have any domain and secure HTTPS connection with OpenSSL certificate. In this case we use folder terraform_terraform_EC2_managed for creation infrastructure with terraform. Terraform create network security groups, ELK stack and worker EC2 instances.<br />
 
 ![ELK Stack + Beats + Kafka + NGINX + Grafana](ELK_stack_diagram.png)
 
