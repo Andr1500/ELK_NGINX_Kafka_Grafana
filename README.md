@@ -23,7 +23,6 @@ if everything is ok, run ```terraform plan``` and ```terraform apply```. Infrast
 3. All Ansible variables are in ELK_stack/group_vars/all.yml . Add ```server_domain``` and ```certbot_mail_address``` variables if you need to assign Let's Encrypt SSL certificate to NGINX server and use domain name. Here is in use domain from GoDaddy and it's necessary to create (or change) A record for forwarding traffic to the created server. In case you don't have any domain name you can use self-assigned OpenSSL certificate.
 
 4. Go to ELK_stack folder and run:
-
 a) for the enviromnent with Sertificate Manager SSL certificate:
 
 for installation and configuration ELK stack:
@@ -42,7 +41,7 @@ for installation and configuration workers:
 
 Next, go to your hosting provider and add A record.
 
-![GoDaddy A record](godaddy_arecord.png)
+![GoDaddy A record](godaddy.png)
 
 c) for the environment with OpenSSL SSL certificate:
 for installation and configuration ELK stack:
