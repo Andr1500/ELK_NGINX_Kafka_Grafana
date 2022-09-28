@@ -8,6 +8,8 @@ b) We have domain from other domain provier (f.e. GoDaddy in my case) and secure
 
 c) We don't have any domain and secure HTTPS connection with OpenSSL certificate. In this case we use folder terraform_terraform_EC2_managed for creation infrastructure with terraform. Terraform create network security groups, ELK stack and worker EC2 instances.
 
+![ELK Stack + Beats + Kafka + NGINX + Grafana](ELK_stack_diagram.png)
+
 1.  clone the repo
 ```git clone git@github.com:Andr1500/ELK_NGINX_Kafka_Grafana.git```
 
@@ -20,27 +22,24 @@ if everything is ok, run ```terraform plan``` and ```terraform apply```.<br /> I
 
 3. All Ansible variables are in ELK_stack/group_vars/all.yml . Add ```server_domain``` and ```certbot_mail_address``` variables if you need to assign Let's Encrypt SSL certificate to NGINX server and use domain name. Here is in use domain from GoDaddy and it's necessary to create (or change) A record for forwarding traffic to the created server. In case you don't have any domain name you can use self-assigned OpenSSL certificate.
 
-4. Go to ELK_stack folder and run:
+4. Go to ELK_stack folder and run:<br />
 a) for the enviromnent with Sertificate Manager SSL certificate:<br />
 for installation and configuration ELK stack:<br />
 ```ansible-playbook -i hosts.txt -l elk_stack ELK_stack_cermanager.yml```<br />
-
 for installation and configuration workers:<br />
 ```ansible-playbook -i hosts.txt -l worker ELK_beats.yml```<br />
 b) for the environment with Let's Encrypt SSL certificate:<br />
 for installation and configuration ELK stack:<br />
 ```ansible-playbook -i hosts.txt -l elk_stack ELK_stack_letsencrypt.yml```<br />
-
 for installation and configuration workers:<br />
 ```ansible-playbook -i hosts.txt -l worker ELK_beats.yml```<br />
 Next, go to your hosting provider and add A record.<br />
-
+![Godaddy A record](godaddy.png)<br />
 c) for the environment with OpenSSL SSL certificate:<br />
 for installation and configuration ELK stack:<br />
 ```ansible-playbook -i hosts.txt -l elk_stack ELK_stack_openssl.yml```<br />
 for installation and configuration workers:<br />
 ```ansible-playbook -i hosts.txt -l worker ELK_beats.yml```<br />
-![ELK Stack + Beats + Kafka + NGINX + Grafana](ELK_stack_diagram.png)
 
 5. Copy public IP address, go to any WEB browser and paste in search bar. It will be automatically redirest to https and you can see information that the page is not secure if you installed Nginx with OpenSSL certificate. Ignore it and go to the web page. If you configured "ELK stack" with Let's Encrypt or Certificate Manager certificate it will be automatically redirect to domain name.
 
