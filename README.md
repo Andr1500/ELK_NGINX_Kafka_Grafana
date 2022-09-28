@@ -1,4 +1,4 @@
-Create environment with terraform and configure ELK stack + Kafka + Nginx + Beats with ansible playbook.
+Create environment with terraform and configure ELK stack + Kafka + Nginx + Beats with Ansible playbook.
 
 Here are 3 options of running project:
 
@@ -18,8 +18,7 @@ set aws credentials, credentials can be exported as environment variables:
 ```export AWS_SECRET_ACCESS_KEY="SECRET_KEY"```
 ```export AWS_ACCESS_KEY_ID="ACCES_KEY"```
 run ```terraform init```
-if everything is ok, run ```terraform plan``` and ```terraform apply```
-Infrastructure in AWS will be created and inventory file hosts.txt in ELK_stack directory.
+if everything is ok, run ```terraform plan``` and ```terraform apply```. Infrastructure in AWS will be created and inventory file hosts.txt in ELK_stack directory.
 
 3. All Ansible variables are in ELK_stack/group_vars/all.yml . Add ```server_domain``` and ```certbot_mail_address``` variables if you need to assign Let's Encrypt SSL certificate to NGINX server and use domain name. Here is in use domain from GoDaddy and it's necessary to create (or change) A record for forwarding traffic to the created server. In case you don't have any domain name you can use self-assigned OpenSSL certificate.
 
