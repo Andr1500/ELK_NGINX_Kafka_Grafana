@@ -56,7 +56,7 @@ resource "aws_instance" "ansible_RHEL8_stack" {
   ami                    = data.aws_ami.rhel8.id
   instance_type          = var.stack_instance_type #for ELK minimum is  t3.large
   key_name               = "aws_key"
-  vpc_security_group_ids = [aws_security_group.ansible_sg.id]
+  vpc_security_group_ids = [aws_security_group.ansible_sg_stack.id]
   subnet_id              = element([for s in data.aws_subnet.subnet : s.id], 0)
 
 
@@ -77,7 +77,7 @@ resource "aws_instance" "ansible_RHEL8_worker" {
   ami                    = data.aws_ami.rhel8.id
   instance_type          = var.worker_instance_type
   key_name               = "aws_key"
-  vpc_security_group_ids = [aws_security_group.ansible_sg.id]
+  vpc_security_group_ids = [aws_security_group.ansible_sg_worker.id]
   subnet_id              = element([for s in data.aws_subnet.subnet : s.id], 0)
 
 
@@ -93,13 +93,14 @@ resource "aws_instance" "ansible_RHEL8_worker" {
   }
 }
 
-resource "aws_security_group" "ansible_sg" {
-  name = "ansible-SG"
+# Security group for ELK stack instances
+resource "aws_security_group" "ansible_sg_stack" {
+  name = "ansible-SG-ELK-stack"
 
   dynamic "ingress" {
     for_each = ["80", "8080", "443", "22", "8200", "9200", "5601", "5044", "3000", "2181", "9092"]
     content {
-      description = "Allow port HTTP"
+      description = "Allow ingress traffic"
       from_port   = ingress.value
       to_port     = ingress.value
       protocol    = "tcp"
@@ -112,6 +113,30 @@ resource "aws_security_group" "ansible_sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Security group for worker instances
+resource "aws_security_group" "ansible_sg_worker" {
+  name = "ansible-SG-worker"
+
+  dynamic "ingress" {
+    for_each = ["22", "9092"]
+    content {
+      description = "Allow ingress traffic"
+      from_port   = ingress.value
+      to_port     = ingress.value
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 }
 

@@ -94,7 +94,7 @@ logstash_port: 5044
 user_group: elk_stack
 kafka_user: kafka
 kafka_group: kafka
-kafka_host: 172.31.21.136
+kafka_host: 172.31.25.105
 kafka_port: 9092
 installation_dir: /opt/kafka
 installation_source: https://dlcdn.apache.org/kafka/3.1.2/kafka_2.12-3.1.2.tgz
