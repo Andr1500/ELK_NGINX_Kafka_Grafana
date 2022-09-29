@@ -67,8 +67,6 @@ metricbeat_password: metricbeat
 #Grafana configuration
 admin_user: grafana
 admin_password: grafana
-
-node: 3.75.210.73
 path: /var/lib/grafana
 gc: /etc/grafana/grafana.ini
 
