@@ -190,7 +190,7 @@ resource "aws_lb" "front" {
   name               = "front"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.ansible_sg.id]
+  security_groups    = [aws_security_group.ansible_sg_stack.id]
   subnets            = [for s in data.aws_subnet.subnet : s.id]
 
   tags = {
